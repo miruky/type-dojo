@@ -101,6 +101,27 @@ type Cases = [
   : false;`,
   },
   {
+    id: 'replace',
+    title: 'Replace<S, From, To>',
+    difficulty: '上級',
+    summary: '文字列リテラル型の最初の一致を置き換える',
+    description:
+      '文字列リテラル型Sの中で最初に現れたFromをToに置き換えた型を作ります。Fromが空文字のときは置換せずSをそのまま返してください(空文字はどこにでも一致してしまうため)。',
+    starter: `type Replace<S extends string, From extends string, To extends string> = any;`,
+    tests: `type Cases = [
+  Expect<Equal<Replace<'types are fun!', 'fun', 'great'>, 'types are great!'>>,
+  Expect<Equal<Replace<'foobarbar', 'bar', 'foo'>, 'foofoobar'>>,
+  Expect<Equal<Replace<'foobar', '', 'xyz'>, 'foobar'>>,
+  Expect<Equal<Replace<'no match', 'zzz', 'q'>, 'no match'>>,
+];`,
+    hint: 'まずFromが空文字なら何もしません。テンプレートリテラル型 `${infer A}${From}${infer B}` で前後を取り出し、`${A}${To}${B}` を組み立てます。',
+    solution: `type Replace<S extends string, From extends string, To extends string> = From extends ''
+  ? S
+  : S extends \`\${infer A}\${From}\${infer B}\`
+    ? \`\${A}\${To}\${B}\`
+    : S;`,
+  },
+  {
     id: 'string-length',
     title: 'StringLength<S>',
     difficulty: '上級',
