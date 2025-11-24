@@ -107,6 +107,40 @@ type Invalid = MyOmit<Todo, 'invalid'>;`,
     solution: `type Push<T extends unknown[], U> = [...T, U];`,
   },
   {
+    id: 'unshift',
+    title: 'Unshift<T, U>',
+    difficulty: '中級',
+    summary: 'タプルの先頭に要素を追加する',
+    description: 'Array.prototype.unshiftの型版です。タプルTの先頭にUを足したタプル型を返します。',
+    starter: `type Unshift<T extends unknown[], U> = any;`,
+    tests: `type Cases = [
+  Expect<Equal<Unshift<[], 1>, [1]>>,
+  Expect<Equal<Unshift<[1, 2], 0>, [0, 1, 2]>>,
+  Expect<Equal<Unshift<['b', 'c'], 'a'>, ['a', 'b', 'c']>>,
+];`,
+    hint: 'スプレッド構文を先頭側に置いて [U, ...T] と書きます。',
+    solution: `type Unshift<T extends unknown[], U> = [U, ...T];`,
+  },
+  {
+    id: 'my-parameters',
+    title: 'MyParameters<T>',
+    difficulty: '中級',
+    summary: '関数型から引数の型のタプルを取り出す',
+    description: '組み込みのParametersを自作します。関数型Tの引数をタプル型として返してください。',
+    starter: `type MyParameters<T extends (...args: never[]) => unknown> = any;`,
+    tests: `type Cases = [
+  Expect<Equal<MyParameters<() => void>, []>>,
+  Expect<Equal<MyParameters<(a: number) => void>, [number]>>,
+  Expect<Equal<MyParameters<(a: string, b: boolean) => void>, [string, boolean]>>,
+];`,
+    hint: '条件型の infer を引数の位置 (...args: infer P) に置くと、引数全体がタプルとして取り出せます。',
+    solution: `type MyParameters<T extends (...args: never[]) => unknown> = T extends (
+  ...args: infer P
+) => unknown
+  ? P
+  : never;`,
+  },
+  {
     id: 'trim-left',
     title: 'TrimLeft<S>',
     difficulty: '中級',

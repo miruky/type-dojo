@@ -1,34 +1,65 @@
 :root {
   color-scheme: light dark;
+  /* 温度のある中立色。純白は避け、地に少し赤みを含ませる */
   --bg: #f6f5f3;
-  --surface: #ffffff;
+  --surface: #fbfaf8;
   --text: #25211e;
   --muted: #6e655e;
+  --faint: #a39a90;
   --border: #e3ded8;
+  --hairline: #ece8e2;
   --accent: #c0452a;
   --accent-soft: rgba(192, 69, 42, 0.1);
+  --on-accent: #ffffff;
   --pass: #2e7d4f;
   --pass-soft: rgba(46, 125, 79, 0.1);
   --fail: #b03434;
   --fail-soft: rgba(176, 52, 52, 0.08);
-  --shadow: 0 1px 2px rgba(30, 24, 20, 0.05), 0 4px 16px rgba(30, 24, 20, 0.06);
+  --serif: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', Georgia, 'Times New Roman', serif;
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+/* 明示ダーク: 沈んだ地に合わせてアクセントと罫線を調整(単なる反転ではない) */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #181614;
+  --surface: #211e1b;
+  --text: #ebe6e1;
+  --muted: #a89e95;
+  --faint: #6b6058;
+  --border: #363029;
+  --hairline: #2a2521;
+  --accent: #e8826a;
+  --accent-soft: rgba(232, 130, 106, 0.14);
+  --on-accent: #241310;
+  --pass: #5cc488;
+  --pass-soft: rgba(92, 196, 136, 0.12);
+  --fail: #e07878;
+  --fail-soft: rgba(224, 120, 120, 0.1);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+/* JSが無い場合の保険: data-theme未設定のときだけOSのダークに従う */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    color-scheme: dark;
     --bg: #181614;
     --surface: #211e1b;
     --text: #ebe6e1;
     --muted: #a89e95;
+    --faint: #6b6058;
     --border: #363029;
+    --hairline: #2a2521;
     --accent: #e8826a;
     --accent-soft: rgba(232, 130, 106, 0.14);
+    --on-accent: #241310;
     --pass: #5cc488;
     --pass-soft: rgba(92, 196, 136, 0.12);
     --fail: #e07878;
     --fail-soft: rgba(224, 120, 120, 0.1);
-    --shadow: none;
   }
 }
 
@@ -86,18 +117,74 @@ body {
   fill: none;
 }
 
-.masthead h1 {
-  font-size: 1.5rem;
-  letter-spacing: 0.02em;
+.masthead-text {
+  flex: 1;
+  min-width: 200px;
 }
 
-.masthead-text p {
+.kicker {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+/* ワードマークは性格のある明朝/セリフで本文のサンセリフと差をつける */
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.masthead .lede {
   color: var(--muted);
   font-size: 0.875rem;
+  margin-top: 6px;
+  max-width: 54ch;
+}
+
+.masthead-aside {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 13px 6px 11px;
+}
+
+.theme-toggle:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+  transform: none;
+}
+
+.theme-icon {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle[data-choice='dark'] .theme-icon {
+  transform: rotate(180deg);
 }
 
 .progress {
-  margin-left: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -143,7 +230,6 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: var(--shadow);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -221,7 +307,6 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: var(--shadow);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -366,13 +451,7 @@ button:disabled {
 button.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  button.primary {
-    color: #241310;
-  }
+  color: var(--on-accent);
 }
 
 button.linklike {
