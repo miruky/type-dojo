@@ -128,6 +128,10 @@ export function mountApp(root: HTMLElement): void {
           <header class="challenge-head">
             <h2 class="challenge-title"></h2>
             <span class="chip"></span>
+            <div class="challenge-nav">
+              <button type="button" class="nav-btn" data-act="prev" aria-label="前の問題">‹</button>
+              <button type="button" class="nav-btn" data-act="next" aria-label="次の問題">›</button>
+            </div>
           </header>
           <p class="challenge-desc"></p>
           <details class="prelude">
@@ -172,6 +176,8 @@ export function mountApp(root: HTMLElement): void {
   const progressLabel = root.querySelector('.progress-label') as HTMLElement;
   const progressFill = root.querySelector('.progress-fill') as HTMLElement;
   const runButton = root.querySelector('button[data-act="run"]') as HTMLButtonElement;
+  const prevButton = root.querySelector('button[data-act="prev"]') as HTMLButtonElement;
+  const nextButton = root.querySelector('button[data-act="next"]') as HTMLButtonElement;
 
   preludeCode.textContent = PRELUDE;
   setupTheme(root);
@@ -231,7 +237,16 @@ export function mountApp(root: HTMLElement): void {
     editor.value = store.getItem(DRAFT_PREFIX + challenge.id) ?? challenge.starter;
     hintBox.hidden = true;
     resultEl.replaceChildren();
+    const index = challenges.indexOf(challenge);
+    prevButton.disabled = index <= 0;
+    nextButton.disabled = index >= challenges.length - 1;
     renderList();
+  }
+
+  // 一覧の並び順で前後の問題へ移動する
+  function navigate(offset: number): void {
+    const next = challenges[challenges.indexOf(current) + offset];
+    if (next) select(next);
   }
 
   function renderResult(result: JudgeResult): void {
@@ -260,6 +275,14 @@ export function mountApp(root: HTMLElement): void {
         list.append(item);
       }
       panel.append(list);
+    }
+    if (result.ok && challenges.indexOf(current) < challenges.length - 1) {
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'verdict-next';
+      next.dataset.act = 'next';
+      next.textContent = '次の問題へ';
+      panel.append(next);
     }
     resultEl.append(panel);
   }
@@ -293,6 +316,8 @@ export function mountApp(root: HTMLElement): void {
     const action = (target.closest('button[data-act]') as HTMLElement | null)?.dataset.act;
     if (!action) return;
     if (action === 'run') void run();
+    if (action === 'prev') navigate(-1);
+    if (action === 'next') navigate(1);
     if (action === 'reset') {
       store.removeItem(DRAFT_PREFIX + current.id);
       editor.value = current.starter;
