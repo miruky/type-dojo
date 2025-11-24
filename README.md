@@ -9,7 +9,7 @@
 
 ## 概要
 
-MyPickやDeepReadonlyのような型エイリアスを実装する18問を、初級・中級・上級に分けて出題します。エディタに型を書いて判定ボタンを押すと、Web Workerの中で本物のTypeScriptコンパイラ(LanguageService)が「前置ヘルパー + 解答 + テスト」を型検査し、エラーがなければ合格です。選択肢クイズではなく、`Equal<X, Y>` による真の型一致でテストされるため、anyでごまかした解答やreadonly修飾の漏れも不合格になります。クリア状況と書きかけの解答はlocalStorageに保存されます。
+MyPickやDeepReadonlyのような型エイリアスを実装する21問を、初級・中級・上級に分けて出題します。エディタに型を書いて判定ボタンを押すと、Web Workerの中で本物のTypeScriptコンパイラ(LanguageService)が「前置ヘルパー + 解答 + テスト」を型検査し、エラーがなければ合格です。選択肢クイズではなく、`Equal<X, Y>` による真の型一致でテストされるため、anyでごまかした解答やreadonly修飾の漏れも不合格になります。クリア状況と書きかけの解答はlocalStorageに保存され、表示テーマ(自動 / ライト / ダーク)も選べます。
 
 試す: https://miruky.github.io/type-dojo/
 
@@ -20,27 +20,29 @@ MyPickやDeepReadonlyのような型エイリアスを実装する18問を、初
 ## 使い方
 
 - 左の一覧から問題を選び、雛形の `any` を自分の実装に置き換えて「判定」を押します(Ctrl+Enterでも可)
+- 問題見出しの「‹」「›」で一覧順に前後の問題へ移れます。合格すると結果に「次の問題へ」が出ます
 - 不合格のときは、解答とテストのどちらの何行目で型エラーが出たかが一覧されます
 - 「ヒント」は考え方を、「解答を見る」は解答例を表示します
 - 前置ヘルパー `Expect` / `Equal` / `NotEqual` は解答の実装からも使えます(上級のIncludesで必要になります)
+- 右上のボタンで表示テーマを 自動 / ライト / ダーク に切り替えられます(選択はブラウザに保存)
 
 ## アーキテクチャ
 
 ![type-dojoのアーキテクチャ](docs/architecture.svg)
 
-出題データ(問題文・雛形・テスト・公式解)は `src/lib/challenges/` に集約され、判定器 `judge.ts` はTypeScriptのLanguageServiceを仮想ファイルの上で動かします。型検査に必要なlibファイル(ES系)はビルド時にバンドルへ同梱するため、実行時のネットワーク取得はありません。コンパイラは重いのでWeb Workerに隔離し、UIスレッドは診断の結果だけを受け取ります。CIでは全18問について「公式解が合格し、雛形のままでは不合格になる」ことを機械検証しており、出題自体の壊れを防いでいます。
+出題データ(問題文・雛形・テスト・公式解)は `src/lib/challenges/` に集約され、判定器 `judge.ts` はTypeScriptのLanguageServiceを仮想ファイルの上で動かします。型検査に必要なlibファイル(ES系)はビルド時にバンドルへ同梱するため、実行時のネットワーク取得はありません。コンパイラは重いのでWeb Workerに隔離し、UIスレッドは診断の結果だけを受け取ります。CIでは全21問について「公式解が合格し、雛形のままでは不合格になる」ことを機械検証しており、出題自体の壊れを防いでいます。
 
 ## 技術スタック
 
-| カテゴリ | 技術                          |
-| :------- | :---------------------------- |
-| 言語     | TypeScript 5(strict)          |
-| 判定     | TypeScript Compiler API(同梱) |
-| ビルド   | Vite                          |
-| テスト   | Vitest(59テスト)              |
-| リンタ   | ESLint + Prettier             |
-| CI / CD  | GitHub Actions                |
-| 配信     | GitHub Pages                  |
+| カテゴリ | 技術                           |
+| :------- | :----------------------------- |
+| 言語     | TypeScript 5(strict)           |
+| 判定     | TypeScript Compiler API(同梱)  |
+| ビルド   | Vite 8                         |
+| テスト   | Vitest 4 + happy-dom(74テスト) |
+| リンタ   | ESLint + Prettier              |
+| CI / CD  | GitHub Actions                 |
+| 配信     | GitHub Pages                   |
 
 ## プロジェクト構成
 
@@ -48,15 +50,16 @@ MyPickやDeepReadonlyのような型エイリアスを実装する18問を、初
 - `src/lib/prelude.ts` — 判定対象の先頭に連結されるヘルパー型(Expect / Equal / NotEqual)
 - `src/lib/challenges/` — 出題データ。難易度別の3ファイル+型定義
 - `src/lib/storage.ts` — localStorageが使えない環境向けのフォールバックつき保存層
+- `src/lib/theme.ts` — テーマ選択(自動 / ライト / ダーク)の解決ロジック
 - `src/judge.worker.ts` — 判定をUIスレッドから隔離するWorker
-- `src/app.ts` — 一覧・エディタ・判定結果・進捗のUI
+- `src/app.ts` — 一覧・エディタ・前後移動・判定結果・進捗・テーマのUI
 - `docs/architecture.svg` — アーキテクチャ図
 
 ## はじめ方
 
 ### 前提条件
 
-- Node.js 20 以上
+- Node.js 20.19 以上(CI は 22 で検証)
 
 ### セットアップ
 
