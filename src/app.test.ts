@@ -87,6 +87,43 @@ describe('mountApp', () => {
   });
 });
 
+describe('問題の前後移動とテーマ', () => {
+  it('次へ/前へで一覧順に移動し、端では無効になる', () => {
+    const root = mount();
+    const prev = root.querySelector('button[data-act="prev"]') as HTMLButtonElement;
+    const next = root.querySelector('button[data-act="next"]') as HTMLButtonElement;
+    expect(prev.disabled).toBe(true);
+    expect(next.disabled).toBe(false);
+    next.click();
+    expect(root.querySelector('.challenge-title')?.textContent).toBe(challenges[1]?.title);
+    prev.click();
+    expect(root.querySelector('.challenge-title')?.textContent).toBe(challenges[0]?.title);
+  });
+
+  it('最後の問題では次へが無効になる', () => {
+    const root = mount();
+    const last = challenges[challenges.length - 1] as (typeof challenges)[number];
+    (
+      root.querySelector(`.challenge-list button[data-id="${last.id}"]`) as HTMLButtonElement
+    ).click();
+    expect((root.querySelector('button[data-act="next"]') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it('テーマトグルは自動→ライト→ダークと巡回し、html要素へ反映する', () => {
+    const root = mount();
+    const toggle = root.querySelector('#theme-toggle') as HTMLButtonElement;
+    expect(toggle.dataset.choice).toBe('system');
+    toggle.click();
+    expect(toggle.dataset.choice).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+    toggle.click();
+    expect(toggle.dataset.choice).toBe('dark');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+  });
+});
+
 describe('判定フロー', () => {
   it('正しい解答で合格になり、進捗が保存される', async () => {
     const root = mount();
