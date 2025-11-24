@@ -338,6 +338,44 @@ body {
   border-color: var(--accent);
 }
 
+/* 前後の問題への移動。隣接した2つのまとまり */
+.challenge-nav {
+  margin-left: auto;
+  display: inline-flex;
+}
+
+.nav-btn {
+  font-family: var(--mono);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 5px 13px;
+  color: var(--muted);
+}
+
+.nav-btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.nav-btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.verdict-next {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: none;
+}
+
 .challenge-desc {
   color: var(--text);
   max-width: 70ch;
